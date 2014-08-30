@@ -5,22 +5,55 @@ board_edge = 21;
 board_ceil = 25;
 
 bowl_radius = board_edge * 2;
-bowl_hole_radius = 1.5;
+hanger_radius = bowl_thickness / 3;
+hanger_height = 65;
+hanger_leg_rotation = 35;
+hanger_vert_offset = 20;
+hanger_ball_offset = 48;
+ball_radius = (hanger_radius * 2) + .5;
 
 conn_x = 17;
 conn_y = 5;
 
 facets = 200;
 
-difference()
+main_body();
+rotate([0,0,45])
+	hanger();
+
+module hanger()
 {
-	main_body();
-	translate([0,0,-bowl_hole_radius * 4])
-		rotate([90, 0, 0])
-			cylinder(h = bowl_radius * 2, r1 = bowl_hole_radius, r2 = bowl_hole_radius,center = true, $fn=facets);
-	translate([0,0,-bowl_hole_radius * 4])
-		rotate([90, 0, 90])
-			cylinder(h = bowl_radius * 2, r1 = bowl_hole_radius, r2 = bowl_hole_radius,center = true, $fn=facets);
+	difference()
+	{
+		union()
+		{
+			translate([bowl_radius / 2, 0, hanger_vert_offset])
+				rotate([0, -hanger_leg_rotation, 0])	
+					hanger_leg();
+			translate([-bowl_radius / 2, 0, hanger_vert_offset])
+				rotate([0, hanger_leg_rotation, 0])	
+					hanger_leg();
+			translate([0, bowl_radius / 2, hanger_vert_offset])
+				rotate([hanger_leg_rotation, 0, 0])	
+					hanger_leg();
+			translate([0, -bowl_radius / 2, hanger_vert_offset])
+				rotate([-hanger_leg_rotation, 0, 0])	
+					hanger_leg();
+		    translate([0, 0, hanger_ball_offset])
+				sphere(ball_radius, center=true, $fn=facets);
+		}
+	 	translate([0,0,hanger_ball_offset + 2.5])
+	    		rotate([0,90,45])
+				rotate_extrude($fn = facets)
+					translate([4, 0, 0])
+						circle(r = 1, $fn = facets);
+	}
+}
+
+module hanger_leg()
+{
+	color([1,.5,0])
+		cylinder(h = hanger_height, r1 = hanger_radius, r2 = hanger_radius, center=true, $fn=facets);
 }
 
 module main_body()
@@ -59,7 +92,7 @@ module bowl()
 
 module pcb_box()
 {
-	translate([-(wall_tickness / 4), 0, 0])
+	translate([0, 0, 0])
 		difference()
 		{
  			color([1,0,0]) 
