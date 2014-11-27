@@ -34,7 +34,7 @@ inner_r = inner_dia / 2;
 
 union()
 {
-	translate([0,0,ridge_thickness])
+	translate([0,0,-plate_thickness])
 		upper_cylinder();
     lower_cylinder();
 }
