@@ -11,7 +11,7 @@
 // The outer (plate) diameter of the shim. This should a few mm wider than your coffee cups:
 plate_dia = 195; // mm
 
-width = 66;
+width = 68;
 
 // The inner diameter of the shim. This should be a few mm larger than the outer diameter of
 // your coffee filter cone or Aeropress:
@@ -26,21 +26,26 @@ num_pegs = 12;
 
 spacing = 28.3; //mm apart
 
+bolt_dia = 5.2; 
+
 //5mm * 5mm wide/deep
 //12 mm tall
 
 // No need to edit below this line -------
 plate_r = plate_dia / 2;
 inner_r = inner_dia / 2;
+bolt_r = bolt_dia / 2;
 
-peg_offset = plate_dia - 38;
+peg_offset = plate_dia - 39;
+hole_offset = (plate_dia - 50) / 2;
 
-intersection()
-{
-	plate();
-	translate([-2.5, 60, -12])
-    		cube([20,50,30]);
-}
+//intersection()
+//{
+	//plate();
+ring();
+//	translate([-2.5, 60, -12])
+//    		cube([20,50,30]);
+//}
 
 module plate()
 {
@@ -79,8 +84,25 @@ module ring()
 {
 	difference()
 	{
-		cylinder(h = plate_thickness, r = plate_r, $fn=facets);
-		cylinder(h = plate_thickness, r = inner_r, $fn=facets);
-	}; 
+		difference()
+		{
+			cylinder(h = plate_thickness, r = plate_r, $fn=facets);
+			translate([0,0,-.05])
+				cylinder(h = plate_thickness + .1, r = inner_r, $fn=facets);
+		}
+
+		rotate([0,0,12])
+			union()
+			{
+				translate([-hole_offset, 0, -.1])
+		    			cylinder(h = plate_thickness * 2, r = bolt_r, $fn=facets);
+				translate([hole_offset, 0, -.1])
+		    			cylinder(h = plate_thickness * 2, r = bolt_r, $fn=facets);
+				translate([0, -hole_offset, -.1])
+		    			cylinder(h = plate_thickness * 2, r = bolt_r, $fn=facets);
+				translate([0, hole_offset, -.1])
+		    			cylinder(h = plate_thickness * 2, r = bolt_r, $fn=facets);
+			}
+	} 
 }
 
