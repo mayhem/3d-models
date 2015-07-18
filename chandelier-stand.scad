@@ -1,6 +1,14 @@
 rod_dia = 13.3;
-num_rings = 3;
+rod_inner_dia = 10;
+num_rings = 2;
 base_height = 100;
+
+center_hole_dia = 8.1;
+center_offset = 10;
+spacing_mult = 1.5;
+mounting_hole_dia = 5.0;
+mounting_hole_offset = 65;
+mounting_hole_rotation = 17;
 
 bottle_mount_height = 40;
 bottle_mount_dia = 33;
@@ -11,38 +19,85 @@ bottle_height = 120;
 bottle_top_dia = 41;
 bottle_top_height = 5;
 
-rod_counts = [ [19, 915, 5], [17, 610, 4], [13, 305, 3] ];
-rod_facets = 16;
+rod_counts = [ [13, 305, 10], [10, 610, 7], [13, 915, 0] ];
+rod_facets = 64;
 
-// calculate the effective_rod_dia
+base_radius = 70;
+base_height = 20;
 
-// calculate the base_radius
-base_radius = 300;
+only_base();
+//whole();
 
-for(ring = [0:num_rings - 1])
+module whole()
 {
-	for (i = [0:rod_counts[ring][0]])
-	{ 
-		assign(deg = (360 / rod_counts[ring][0]) * i)
-		rotate([deg, 0, 0])
-			rotate([0, 90, 0])
-				translate([rod_dia * 10 * (ring + 1),0,rod_counts[ring][1]])
-					arm(rod_counts[ring][1]);
+    base();
+    arms();
+}
+
+module only_base()
+{
+	difference()
+	{
+		base();
+		arms();
+	}
+}
+
+module arms()
+{
+	for(ring = [0:num_rings - 1])
+	{
+	    assign(count = rod_counts[ring][0])
+		assign(length = rod_counts[ring][1])
+		assign(angle = rod_counts[ring][2])
+		for (i = [0:count])
+		{ 
+			assign(deg = (360 / count) * i)
+			rotate([0, 0, deg])
+				rotate([0,angle, 0])
+					translate([-center_offset + rod_dia * spacing_mult * (num_rings - ring + 1),0,0])
+						arm(length);
+		}
+	}
+}
+
+module base_mounting_holes()
+{
+	rotate([0,0, mounting_hole_rotation])
+	union()
+	{
+		translate([mounting_hole_offset, 0, 0])
+			cylinder(h = base_height + .01, r = mounting_hole_dia / 2, center=true, $fn = 32);
+		translate([-mounting_hole_offset, 0, 0])
+			cylinder(h = base_height + .01, r = mounting_hole_dia / 2, center=true, $fn = 32);
+		translate([0, mounting_hole_offset, 0])
+			cylinder(h = base_height + .01, r = mounting_hole_dia / 2, center=true, $fn = 32);
+		translate([0, -mounting_hole_offset, 0])
+			cylinder(h = base_height + .01, r = mounting_hole_dia / 2, center=true, $fn = 32);
 	}
 }
 
 module base()
 {
-	cylinder(h = base_height, r = base_radius, center=true, $fn = 20); 
+	difference()
+	{
+		cylinder(h = base_height, r = base_radius, center=true, $fn = 64);
+		cylinder(h = base_height + .01, r = center_hole_dia / 2, center=true, $fn = 32);
+		base_mounting_holes();
+    }
 }
 
 module arm(arm_length)
 {
-	translate([0,0,-arm_length / 2])
+	translate([0,0,arm_length/2])
 	    union()
 		{
 			color([.2,.2,.2])
-				cylinder(h = arm_length, r = rod_dia / 2, center=true, $fn = rod_facets);
+				union()
+				{
+					cylinder(h = arm_length, r = rod_dia / 2, center=true, $fn = rod_facets);
+					cylinder(h = arm_length + 20, r = rod_inner_dia / 2, center=true, $fn = rod_facets);
+				}
 		
 			color(rands(.6,.9, 3))
 				union()
