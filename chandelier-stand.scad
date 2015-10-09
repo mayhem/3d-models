@@ -1,7 +1,7 @@
 rod_dia = 13.3;
 rod_inner_dia = 10;
 num_rings = 2;
-base_height = 100;
+
 
 center_hole_dia = 8.1;
 center_offset = 10;
@@ -24,13 +24,18 @@ rod_facets = 64;
 
 base_radius = 70;
 base_height = 20;
+middle_height = 10;
+middle_radius = 85;
+middle_offset = 100;
 
-only_base();
+//only_base();
+only_middle();
 //whole();
 
 module whole()
 {
     base();
+	middle();
     arms();
 }
 
@@ -39,6 +44,15 @@ module only_base()
 	difference()
 	{
 		base();
+		arms();
+	}
+}
+
+module only_middle()
+{
+	difference()
+	{
+		middle();
 		arms();
 	}
 }
@@ -75,6 +89,16 @@ module base_mounting_holes()
 		translate([0, -mounting_hole_offset, 0])
 			cylinder(h = base_height + .01, r = mounting_hole_dia / 2, center=true, $fn = 32);
 	}
+}
+
+module middle()
+{
+	translate([0,0, middle_offset])
+		difference()
+		{
+			cylinder(h = middle_height, r = middle_radius, center=true, $fn = 64);
+			cylinder(h = middle_height + .01, r = center_hole_dia / 2, center=true, $fn = 32);
+	    }
 }
 
 module base()
